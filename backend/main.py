@@ -210,17 +210,19 @@ def get_orders(franchise_id: int, start: str = "2022-01-01", end: str = "2022-12
 @app.get("/franchise/{franchise_id}/products", tags=["Franchise"])
 def get_products(franchise_id: int, start: str = "2022-01-01", end: str = "2022-12-31"):
     """
-    Returns the top 10 products by revenue for the given franchise and date range.
-
-    Query parameters:
-      start: start date (YYYY-MM-DD)
-      end:   end date (YYYY-MM-DD)
+    Returns the top 10 products by revenue for the given date range.
 
     Expected response:
     [
         { "product_id": "P001", "name": "Wireless Headphones", "category": "Electronics",
           "units_sold": 342, "revenue": 30578.58 }
     ]
+
+    TODO: implement this endpoint.
+    Hints:
+      - JOIN fact_orders with dim_product on product_id
+      - GROUP BY product_id, name, category
+      - ORDER BY revenue DESC, LIMIT 10
     """
     conn = get_connection()
 
@@ -311,21 +313,43 @@ def get_customers(franchise_id: int, start: str = "2022-01-01", end: str = "2022
 @app.get("/franchise/{franchise_id}/countries", tags=["Franchise"])
 def get_countries(franchise_id: int, start: str = "2022-01-01", end: str = "2022-12-31"):
     """
-    Returns revenue grouped by city and state.
+    Returns revenue grouped by state (US data) or country (Snowflake production data).
     Used to power the geographic breakdown chart.
+
+    Query parameters:
+      start: start date (YYYY-MM-DD)
+      end:   end date (YYYY-MM-DD)
 
     Expected response:
     [
-        { "city": "Austin", "state": "TX", "order_count": 420, "revenue": 38430.00 }
+        { "state": "TX", "order_count": 1420, "revenue": 218500.00 },
+        { "state": "FL", "order_count": 1285, "revenue": 198200.00 }
     ]
-
-    TODO: implement this endpoint.
-    Hints:
-      - JOIN fact_orders with dim_customer (is_current = 1) on customer_id
-      - GROUP BY addr_city, addr_state
-      - ORDER BY revenue DESC
     """
     conn = get_connection()
 
-    # ── YOUR CODE HERE ────────────────────────────────────────────────────────
-    raise HTTPException(status_code=501, detail="Not implemented yet — your turn!")
+    results = execute_query(
+        conn,
+        """
+        SELECT
+            dc.addr_state                       AS state,
+            COUNT(DISTINCT fo.order_id)         AS order_count,
+            ROUND(SUM(fo.amount), 2)            AS revenue
+        FROM fact_orders fo
+        JOIN dim_customer dc ON fo.customer_id = dc.customer_id
+        WHERE fo.order_date BETWEEN ? AND ?
+          AND fo.status IN ('delivered', 'shipped')
+        GROUP BY dc.addr_state
+        ORDER BY revenue DESC
+        """,
+        (start, end),
+    )
+
+    return [
+        {
+            "state":       row["state"],
+            "order_count": row["order_count"],
+            "revenue":     round(row["revenue"] or 0, 2),
+        }
+        for row in results
+    ]
