@@ -95,27 +95,45 @@ export default function CustomersView() {
               Top Customers by Revenue
             </div>
 
-            {/*
-              STEP 1 — Sortable table
-              sorted is: [{ customer_id, name, city, state, total_orders, total_spent }]
-
-              Build a table with these columns:
-                Name | City | State | Orders | Total Spent
-
-              Each column header should be clickable and call handleSort(columnName).
-              Use sortIcon(columnName) to show ↑ or ↓ on the active sort column.
-
-              Hint: use a standard HTML <table> with <thead> and <tbody>.
-              Style alternating rows with different background colors.
-              Format total_spent with formatCurrency().
-            */}
-
-            {/* TODO: add your sortable table here */}
-            <div className="loading" style={{ height: 400 }}>
-              Implement the sortable customers table.
-              Data available in: sorted (array of customer objects)
-              Sorting state: sortBy="{sortBy}", sortDir="{sortDir}"
-              Use handleSort(column) to handle header clicks.
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ padding: '12px 10px', cursor: 'pointer' }} onClick={() => handleSort('customer_id')}>
+                      Customer ID{sortIcon('customer_id')}
+                    </th>
+                    <th style={{ padding: '12px 10px', cursor: 'pointer' }} onClick={() => handleSort('name')}>
+                      Name{sortIcon('name')}
+                    </th>
+                    <th style={{ padding: '12px 10px', cursor: 'pointer' }} onClick={() => handleSort('state')}>
+                      State{sortIcon('state')}
+                    </th>
+                    <th style={{ padding: '12px 10px', cursor: 'pointer' }} onClick={() => handleSort('total_orders')}>
+                      Orders{sortIcon('total_orders')}
+                    </th>
+                    <th style={{ padding: '12px 10px', cursor: 'pointer' }} onClick={() => handleSort('total_spent')}>
+                      Total Spent{sortIcon('total_spent')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map((customer, index) => (
+                    <tr
+                      key={customer.customer_id}
+                      style={{
+                        background: index % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.02)',
+                        borderBottom: '1px solid var(--border)',
+                      }}
+                    >
+                      <td style={{ padding: '12px 10px' }}>{customer.customer_id}</td>
+                      <td style={{ padding: '12px 10px' }}>{customer.name}</td>
+                      <td style={{ padding: '12px 10px' }}>{customer.state}</td>
+                      <td style={{ padding: '12px 10px' }}>{customer.total_orders}</td>
+                      <td style={{ padding: '12px 10px' }}>{formatCurrency(customer.total_spent)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
           </div>
