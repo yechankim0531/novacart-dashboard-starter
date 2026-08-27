@@ -1,34 +1,40 @@
 # NovaCart Account Dashboard
 ### HC&D Associates Capstone — App Developer + App Consultant
 
-Your starting point for the NovaCart Account Dashboard capstone. The infrastructure is already set up. Your job is to implement the API endpoints and the frontend UI.
+A fully implemented account manager dashboard for NovaCart, built with FastAPI (backend) and React 18 (frontend), deployed on Snowflake SPCS.
 
 ---
 
 ## What's in this repo
 
 ```
-backend/          Python + FastAPI API skeleton
-  main.py         ← Your main work — implement the 5 TODO endpoints
-  connection.py   ← Already done — handles local dev + SPCS automatically
+backend/          Python + FastAPI API — 5 endpoints implemented
+  main.py         ← App entry point and router registration
+  connection.py   ← Handles SQLite (local) and Snowflake (SPCS) automatically
+  routers/franchise/
+    summary.py    ← GET /franchise/{id}/summary
+    orders.py     ← GET /franchise/{id}/orders
+    products.py   ← GET /franchise/{id}/products
+    customers.py  ← GET /franchise/{id}/customers
+    countries.py  ← GET /franchise/{id}/countries
   requirements.txt
   Dockerfile
 
-frontend/         React 18 frontend skeleton
-  src/pages/      ← Your main work — implement the UI in these 3 files
-    OrdersView.js
-    ProductsView.js
-    CustomersView.js
-  src/components/ ← Already done — Navbar, ServiceStatus
-  src/utils/      ← Already done — api.js, ThemeContext.js
+frontend/         React 18 dashboard — 3 views implemented
+  src/pages/
+    OrdersView.js     ← Stat cards + monthly revenue chart + revenue by state
+    ProductsView.js   ← Top 10 products bar chart + product details table
+    CustomersView.js  ← Sortable top 20 customers table
+  src/components/     ← Navbar, ServiceStatus
+  src/utils/          ← api.js (all API calls), ThemeContext.js
   Dockerfile
 
-router/           NGINX reverse proxy — do not modify
+router/           NGINX reverse proxy — routes /api → backend, / → frontend
 data/
   novacart_gold.db  ← SQLite database for local development
                       30,000 orders · 400 customers · 15 products
 
-build-and-push.sh   ← Run this on Day 4 to deploy to SPCS
+build-and-push.sh   ← Builds and pushes all 3 Docker images to Snowflake registry
 ```
 
 ---
@@ -40,13 +46,13 @@ build-and-push.sh   ← Run this on Day 4 to deploy to SPCS
 ```bash
 cd backend
 cp .env.example .env
-# No changes needed — DATA_BACKEND=sqlite works out of the box
+# Default DATA_BACKEND=sqlite works out of the box
 
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
 
-Open **http://localhost:8000/docs** — Swagger UI with all endpoints.
+Open **http://localhost:8000/docs** — Swagger UI with all 5 endpoints.
 
 Test the health endpoint:
 ```bash
@@ -66,44 +72,22 @@ npm start
 
 ---
 
-## Your Work
-
-### App Developer
-
-**Backend** — open `backend/main.py` and implement the 5 endpoints:
+## API Endpoints
 
 | Endpoint | Description |
 |---|---|
-| `GET /franchise/summary` | Total revenue, orders, unique customers |
-| `GET /franchise/orders` | Monthly order volume and revenue |
-| `GET /franchise/products` | Top 10 products by revenue |
-| `GET /franchise/customers` | Top 20 customers by revenue |
-| `GET /franchise/cities` | Revenue by city and state |
+| `GET /health` | Service health check |
+| `GET /franchise/{id}/summary` | Total revenue, orders, unique customers, date range |
+| `GET /franchise/{id}/orders` | Monthly order volume and revenue (supports `start`/`end` params) |
+| `GET /franchise/{id}/products` | Top 10 products by revenue (supports `start`/`end` params) |
+| `GET /franchise/{id}/customers` | Top 20 customers by spend (supports `start`/`end` params) |
+| `GET /franchise/{id}/countries` | Revenue by state (supports `start`/`end` params) |
 
-Each endpoint has a `TODO` comment with hints and the expected response format.
-
-**Frontend** — open the three files in `frontend/src/pages/` and implement the UI:
-
-| File | What to build |
-|---|---|
-| `OrdersView.js` | Stat cards + monthly revenue chart + cities chart |
-| `ProductsView.js` | Products bar chart + products table |
-| `CustomersView.js` | Sortable customers table |
-
-Each file has `TODO` comments explaining exactly what to build and which data is available.
-
-### App Consultant
-
-- Write the requirements document before any code is written (end of Day 1)
-- Validate each endpoint against requirements before marking it done
-- Write the Solution Design Document by Day 4
-- Prepare and lead the client presentation on Day 5
+Revenue calculations use `status IN ('delivered', 'shipped')` only.
 
 ---
 
 ## Data Schema
-
-The SQLite database has four tables matching the Gold layer from the Data Engineering capstone:
 
 ```
 fact_orders    order_id, customer_id, product_id, order_date, amount,
@@ -119,40 +103,41 @@ dim_date       date_key, full_date, year, quarter, month,
                month_name, day_of_week, is_weekend
 ```
 
-Use `status IN ('delivered', 'shipped')` for revenue calculations.
-
 ---
 
-## Deploying to SPCS
+## Deploying to SPCS (Day 4)
 
-When your endpoints are working and the UI is connected, on Day 4:
+Deployment is handled by the facilitator via the GitHub Actions workflow.
 
-```bash
-export REPO_URL=<provided by your facilitator>
-export GROUP=<your team number>
+**What the facilitator needs:**
+- Your fork URL: `https://github.com/<your-username>/novacart-dashboard-starter`
+- Your group number
 
-bash build-and-push.sh
+**What gets deployed:**
+- `backend_service_image_group{N}` — FastAPI backend on port 8000
+- `frontend_service_image_group{N}` — React frontend on port 3000
+- `router_service_image_group{N}` — NGINX reverse proxy on port 9000 (public)
+
+**Image repository:**
+```
+se58322-snowflake-containers-adrianm.registry.snowflakecomputing.com/novacart_db/app/novacart_repository
 ```
 
-Then notify your facilitator — they will deploy your services and give you the public URL.
+**Verify images are in the registry (run in Snowsight):**
+```sql
+CALL SYSTEM$REGISTRY_LIST_IMAGES('/novacart_db/app/novacart_repository');
+```
 
 ---
 
 ## Troubleshooting
 
-**`501 Not implemented` error** — Expected. Those are the endpoints you need to build.
-
 **Backend can't find the database** — Run `uvicorn` from inside the `backend/` directory.
 
 **CORS error in browser** — Make sure `CLIENT_VALIDATION=Dev` in your backend `.env`.
 
-**`snow` command not found** — Run:
-```bash
-pip3 install snowflake-cli-labs
-export PATH="$HOME/Library/Python/3.9/bin:$PATH"
-```
-
-**Docker build fails** — Run with `--no-cache`:
-```bash
-docker build --no-cache --platform linux/amd64 ...
+**Something broken after SPCS deployment** — Check service logs in Snowsight:
+```sql
+CALL SYSTEM$GET_SERVICE_LOGS('backend_service', '0', 'backend', 50);
+CALL SYSTEM$GET_SERVICE_LOGS('frontend_service', '0', 'frontend', 50);
 ```
