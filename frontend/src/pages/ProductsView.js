@@ -75,7 +75,7 @@ export default function ProductsView() {
           <div className="page-subtitle">
             {viewMode === 'products'
               ? 'See which products are driving revenue: the top 10 by revenue, plus a sortable table for the selected date range.'
-              : 'See which categories are selling the most units: the top 10 by units sold, plus a details table for the selected date range.'}
+              : 'See which categories are selling the most units: the top by units sold, plus a details table for the selected date range.'}
           </div>
         </div>
         <div className="filter-bar">
