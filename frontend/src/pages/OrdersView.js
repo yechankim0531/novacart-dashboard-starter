@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { Calendar, ArrowRight, DollarSign, ShoppingBag } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { getOrders, getCountries } from '../utils/api';
 
@@ -75,11 +76,13 @@ export default function OrdersView() {
 
         {/* ── Filter bar ─────────────────────────────────────────────────── */}
         <div className="filter-bar">
-          <label>From</label>
+          <label><Calendar size={14} /> From</label>
           <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
-          <label>To</label>
+          <label><Calendar size={14} /> To</label>
           <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
-          <button className="btn-apply" onClick={loadData}>Apply</button>
+          <button className="btn-apply" onClick={loadData}>
+            Apply <ArrowRight size={14} />
+          </button>
         </div>
 
         {error && (
@@ -95,12 +98,18 @@ export default function OrdersView() {
             {/* ── Stat cards ──────────────────────────────────────────────── */}
             <div className="stat-row">
               <div className="stat-box">
-                <div className="label">Total Revenue</div>
-                <div className="value">{formatCurrencyCompact(totalRevenue)}</div>
+                <div className="icon-badge"><DollarSign size={20} /></div>
+                <div>
+                  <div className="label">Total Revenue</div>
+                  <div className="value">{formatCurrencyCompact(totalRevenue)}</div>
+                </div>
               </div>
               <div className="stat-box">
-                <div className="label">Total Orders</div>
-                <div className="value">{totalOrders.toLocaleString('en-US')}</div>
+                <div className="icon-badge blue"><ShoppingBag size={20} /></div>
+                <div>
+                  <div className="label">Total Orders</div>
+                  <div className="value">{totalOrders.toLocaleString('en-US')}</div>
+                </div>
               </div>
             </div>
 
