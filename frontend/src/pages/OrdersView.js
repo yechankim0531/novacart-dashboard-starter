@@ -7,9 +7,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { Calendar, ArrowRight, DollarSign, ShoppingBag } from 'lucide-react';
+import { Calendar, ArrowRight, DollarSign, ShoppingBag, CloudOff } from 'lucide-react';
 import Navbar from '../components/Navbar';
-import { getOrders, getCountries } from '../utils/api';
+import { getOrders, getCountries, friendlyError } from '../utils/api';
 
 function formatCurrencyCompact(value) {
   if (!value) return '$0';
@@ -20,13 +20,6 @@ function formatCurrencyCompact(value) {
 
 function formatCurrencyFull(value) {
   return `$${Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-}
-
-function friendlyError(err) {
-  if (err.message === 'Failed to fetch') {
-    return 'Unable to reach the server. Please check your connection and try again.';
-  }
-  return err.message || 'Something went wrong loading the orders overview.';
 }
 
 const tooltipStyle = {
@@ -74,6 +67,13 @@ export default function OrdersView() {
       <Navbar />
       <div className="page">
 
+        <div className="page-header">
+          <div className="page-title">Orders Overview</div>
+          <div className="page-subtitle">
+            Shows a bar or line chart of monthly revenue over time and a bar chart of revenue by country.
+          </div>
+        </div>
+
         {/* ── Filter bar ─────────────────────────────────────────────────── */}
         <div className="filter-bar">
           <label><Calendar size={14} /> From</label>
@@ -86,8 +86,12 @@ export default function OrdersView() {
         </div>
 
         {error && (
-          <div style={{ color: '#C62828', padding: 16, background: '#FFEBEE', borderRadius: 8, marginBottom: 16 }}>
-            Error: {error}
+          <div className="error-banner">
+            <div className="icon-badge"><CloudOff size={18} /></div>
+            <div>
+              <div className="title">Currently unable to fetch your data</div>
+              <div className="subtitle">{error}</div>
+            </div>
           </div>
         )}
 

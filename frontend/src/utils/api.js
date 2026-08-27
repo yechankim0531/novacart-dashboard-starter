@@ -18,6 +18,16 @@ async function apiFetch(path) {
   return res.json();
 }
 
+// The backend being unreachable (down, not deployed, network blocked) surfaces
+// as a generic "Failed to fetch" TypeError — that's the case we want to mask
+// behind a friendly message instead of showing raw error text to the user.
+export function friendlyError(err) {
+  if (err instanceof TypeError || err.message === 'Failed to fetch') {
+    return "We're currently unable to fetch your data. Please try again in a few moments.";
+  }
+  return err.message || 'Something went wrong while loading this page.';
+}
+
 export async function authorize()              { return apiFetch('/authorize'); }
 export async function getHealth()              { return apiFetch('/health'); }
 export async function getSummary(id)           { return apiFetch(`/franchise/${id}/summary`); }

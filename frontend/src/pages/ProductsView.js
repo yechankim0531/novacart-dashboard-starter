@@ -12,9 +12,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Calendar, ArrowRight } from 'lucide-react';
+import { Calendar, ArrowRight, CloudOff } from 'lucide-react';
 import Navbar from '../components/Navbar';
-import { getProducts } from '../utils/api';
+import { getProducts, friendlyError } from '../utils/api';
 
 // Format currency helper
 function formatCurrency(value) {
@@ -40,7 +40,7 @@ export default function ProductsView() {
       const data = await getProducts(1, startDate, endDate);
       setProducts(data);
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -50,6 +50,13 @@ export default function ProductsView() {
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       <Navbar />
       <div className="page">
+
+        <div className="page-header">
+          <div className="page-title">Product Performance</div>
+          <div className="page-subtitle">
+            See which products are driving revenue: the top 10 by revenue, plus a sortable table of all products for the selected date range.
+          </div>
+        </div>
 
         <div className="filter-bar">
           <label><Calendar size={14} /> From</label>
@@ -62,8 +69,12 @@ export default function ProductsView() {
         </div>
 
         {error && (
-          <div style={{ color: '#C62828', padding: 16, background: '#FFEBEE', borderRadius: 8, marginBottom: 16 }}>
-            Error: {error}
+          <div className="error-banner">
+            <div className="icon-badge"><CloudOff size={18} /></div>
+            <div>
+              <div className="title">Currently unable to fetch your data</div>
+              <div className="subtitle">{error}</div>
+            </div>
           </div>
         )}
 

@@ -11,9 +11,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Calendar, ArrowRight } from 'lucide-react';
+import { Calendar, ArrowRight, CloudOff } from 'lucide-react';
 import Navbar from '../components/Navbar';
-import { getCustomers } from '../utils/api';
+import { getCustomers, friendlyError } from '../utils/api';
 
 function formatCurrency(value) {
   if (!value) return '$0';
@@ -38,7 +38,7 @@ export default function CustomersView() {
       const data = await getCustomers(1, startDate, endDate);
       setCustomers(data);
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -71,6 +71,13 @@ export default function CustomersView() {
       <Navbar />
       <div className="page">
 
+        <div className="page-header">
+          <div className="page-title">Customer List</div>
+          <div className="page-subtitle">
+            Your most valuable customers: the top 20 by revenue, sortable by any column, for the selected date range.
+          </div>
+        </div>
+
         <div className="filter-bar">
           <label><Calendar size={14} /> From</label>
           <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
@@ -85,8 +92,12 @@ export default function CustomersView() {
         </div>
 
         {error && (
-          <div style={{ color: '#C62828', padding: 16, background: '#FFEBEE', borderRadius: 8, marginBottom: 16 }}>
-            Error: {error}
+          <div className="error-banner">
+            <div className="icon-badge"><CloudOff size={18} /></div>
+            <div>
+              <div className="title">Currently unable to fetch your data</div>
+              <div className="subtitle">{error}</div>
+            </div>
           </div>
         )}
 
