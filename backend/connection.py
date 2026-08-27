@@ -123,6 +123,7 @@ def execute_query(conn, query: str, params: tuple = ()) -> list[dict]:
     """
     if DATA_BACKEND == "snowflake":
         cursor = conn.cursor(snowflake.connector.DictCursor)
+        query = query.replace("?", "%s")
         cursor.execute(query, params)
         rows = cursor.fetchall()
         cursor.close()
