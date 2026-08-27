@@ -109,7 +109,7 @@ export default function ProductsView() {
           <div className="grid-2">
             <div className="card">
               <div className="section-title" style={{ marginBottom: 16 }}>
-                {viewMode === 'products' ? 'Top 10 Products by Revenue' : 'Top 10 Categories by Units Sold'}
+                {viewMode === 'products' ? 'Top 10 Products by Revenue' : 'Top Categories by Units Sold'}
               </div>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart
