@@ -19,15 +19,15 @@ export default function Navbar() {
     <nav style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '0 24px', height: 56,
-      background: dark ? '#0D1B2A' : '#0D2B4E',
+      background: dark ? '#160D1D' : '#4B0082',
       boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
       position: 'sticky', top: 0, zIndex: 100,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
            onClick={() => navigate('/')}>
-        <ShoppingCart size={20} color="#4DB6AC" strokeWidth={2} />
+        <ShoppingCart size={20} color="#B8D98A" strokeWidth={2} />
         <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>NovaCart</span>
-        <span style={{ color: '#4DB6AC', fontSize: 12, marginLeft: 4 }}>Dashboard</span>
+        <span style={{ color: '#D8C2E2', fontSize: 12, marginLeft: 4 }}>Dashboard</span>
       </div>
 
       <div style={{ display: 'flex', gap: 8 }}>
@@ -37,9 +37,9 @@ export default function Navbar() {
             <button key={path} onClick={() => navigate(path)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 7,
-                background: active ? 'rgba(77,182,172,0.2)' : 'transparent',
-                border: active ? '1px solid #4DB6AC' : '1px solid transparent',
-                color: active ? '#4DB6AC' : '#B0BEC5',
+                background: active ? 'rgba(216,194,226,0.18)' : 'transparent',
+                border: active ? '1px solid #D8C2E2' : '1px solid transparent',
+                color: active ? '#F3EAF7' : '#D0C2D5',
                 borderRadius: 6, padding: '4px 14px', cursor: 'pointer', fontSize: 13, fontWeight: 500,
               }}>
               <Icon size={15} strokeWidth={2} />
@@ -66,14 +66,14 @@ export default function Navbar() {
             position: 'absolute',
             top: 2, left: dark ? 27 : 2,
             width: 22, height: 22, borderRadius: '50%',
-            background: '#4DB6AC',
+            background: '#B8D98A',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             transition: 'left 0.2s ease',
             boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
           }}>
             {dark
-              ? <Moon size={13} color="#0D1B2A" strokeWidth={2.25} />
-              : <Sun size={13} color="#0D2B4E" strokeWidth={2.25} />}
+              ? <Moon size={13} color="#160D1D" strokeWidth={2.25} />
+              : <Sun size={13} color="#4B0082" strokeWidth={2.25} />}
           </span>
         </button>
       </div>
