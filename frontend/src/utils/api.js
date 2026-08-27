@@ -8,14 +8,27 @@
  */
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8000';
+const REQUEST_TIMEOUT_MS = 10000;
 
 async function apiFetch(path) {
-  const res = await fetch(`${BACKEND_URL}${path}`);
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || `API error ${res.status}`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  try {
+    const res = await fetch(`${BACKEND_URL}${path}`, { signal: controller.signal });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || `API error ${res.status}`);
+    }
+    return res.json();
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('The local backend is taking too long to respond. Make sure it is running on port 8000.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
-  return res.json();
 }
 
 // The backend being unreachable (down, not deployed, network blocked) surfaces
